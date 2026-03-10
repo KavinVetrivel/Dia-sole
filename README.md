@@ -17,13 +17,19 @@ This installs all dependencies defined in pubspec.yaml.
 
 Run the following command to launch the app:
 
+```bash
 flutter run
+```
+
 Additional Commands
 
 Check the status of your Flutter installation:
 
+```bash
 flutter doctor
-
+```
 List all available devices or emulators:
 
+```bash
 flutter devices
+```
