@@ -12,6 +12,7 @@ A Flutter project to build a mobile app to analyze & monitor foot health, done i
 
 ```bash
 flutter pub get
+```
 
 This installs all dependencies defined in pubspec.yaml.
 
