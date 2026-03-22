@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../theme/app_theme.dart';
 import '../widgets/foot_pressure_widget.dart';
-import '../widgets/stat_card.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/sync_card.dart';
 import 'analytics_screen.dart';
 import 'notifications_screen.dart';
 import 'profile_screen.dart';
@@ -17,7 +16,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _navIndex = 0;
-  int _selectedTab = 0; // 0: Walking, 1: Running, 2: Standing
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +59,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
+            const SizedBox(height: 24),
+            const SyncCard(),
             const SizedBox(height: 24),
             _buildActiveAnalysisCard(),
             const SizedBox(height: 24),
@@ -118,25 +118,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: AppTheme.primaryBlue,
               size: 20,
             ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.fitness_center_rounded,
-                color: AppTheme.textSecondary,
-                size: 20,
-              ),
-            ),
           ],
         ),
       ],
@@ -156,28 +137,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "REAL-TIME PRESSURE",
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textSecondary,
-                      letterSpacing: 1,
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "REAL-TIME PRESSURE",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textSecondary,
+                        letterSpacing: 1,
+                      ),
                     ),
-                  ),
-                  Text(
-                    "Active Gait Analysis",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                    Text(
+                      "Active Foot Health Analysis",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,

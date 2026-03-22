@@ -337,7 +337,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           trailing: Switch(
             value: value,
-            activeColor: AppTheme.primaryBlue,
+            activeThumbColor: AppTheme.primaryBlue,
             onChanged: onChanged,
           ),
         ),

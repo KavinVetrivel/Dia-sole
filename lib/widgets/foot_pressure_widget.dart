@@ -50,6 +50,7 @@ class FootPressureWidget extends StatelessWidget {
                     scaleX: -1.0,
                     alignment: Alignment.center,
                     child: RightFootWidget(
+                      footSide: "Left",
                       pressureHeel: pressureLeftHeel,
                       pressureToe: pressureLeftToe,
                       pressureBall: pressureLeftBall,
@@ -63,6 +64,7 @@ class FootPressureWidget extends StatelessWidget {
                 // Right Foot (Canonical)
                 Flexible(
                   child: RightFootWidget(
+                    footSide: "Right",
                     pressureHeel: pressureRightHeel,
                     pressureToe: pressureRightToe,
                     pressureBall: pressureRightBall,
@@ -77,6 +79,125 @@ class FootPressureWidget extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         _buildLegend(),
+        const SizedBox(height: 24),
+        _buildHealthAnalysis(),
+      ],
+    );
+  }
+
+  Widget _buildHealthAnalysis() {
+    // Determine absolute temperature differences between corresponding points
+    double diffToe = (tempLeftToe - tempRightToe).abs();
+    double diffBall = (tempLeftBall - tempRightBall).abs();
+    double diffHeel = (tempLeftHeel - tempRightHeel).abs();
+
+    String status(double diff) =>
+        diff > 2.0 ? "Temperature Abnormal" : "Temperature Normal";
+    Color statusColor(double diff) => diff > 2.0 ? Colors.red : Colors.green;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Foot Health Analysis",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildAnalysisRow(
+            "Toe Area Difference",
+            diffToe,
+            status(diffToe),
+            statusColor(diffToe),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1),
+          ),
+          _buildAnalysisRow(
+            "Ball Area Difference",
+            diffBall,
+            status(diffBall),
+            statusColor(diffBall),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1),
+          ),
+          _buildAnalysisRow(
+            "Heel Area Difference",
+            diffHeel,
+            status(diffHeel),
+            statusColor(diffHeel),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnalysisRow(
+    String title,
+    double diff,
+    String status,
+    Color color,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "${diff.toStringAsFixed(1)} °C",
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            status,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 10,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -138,6 +259,7 @@ class FootPressureWidget extends StatelessWidget {
 }
 
 class RightFootWidget extends StatelessWidget {
+  final String footSide;
   final double pressureHeel;
   final double pressureToe;
   final double pressureBall;
@@ -147,6 +269,7 @@ class RightFootWidget extends StatelessWidget {
 
   const RightFootWidget({
     super.key,
+    this.footSide = "Right",
     required this.pressureHeel,
     required this.pressureToe,
     required this.pressureBall,
@@ -187,9 +310,36 @@ class RightFootWidget extends StatelessWidget {
               _buildHeatmap(w, h, heelX, heelY, pressureHeel),
 
               // 3. Sensor Anchors
-              _buildSensor(w, h, toeX, toeY, pressureToe, tempToe),
-              _buildSensor(w, h, ballX, ballY, pressureBall, tempBall),
-              _buildSensor(w, h, heelX, heelY, pressureHeel, tempHeel),
+              _buildSensor(
+                context,
+                w,
+                h,
+                toeX,
+                toeY,
+                pressureToe,
+                tempToe,
+                "Toe",
+              ),
+              _buildSensor(
+                context,
+                w,
+                h,
+                ballX,
+                ballY,
+                pressureBall,
+                tempBall,
+                "Ball",
+              ),
+              _buildSensor(
+                context,
+                w,
+                h,
+                heelX,
+                heelY,
+                pressureHeel,
+                tempHeel,
+                "Heel",
+              ),
             ],
           );
         },
@@ -219,9 +369,9 @@ class RightFootWidget extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-              Colors.red.withOpacity(0.6 * pressure),
-              Colors.orange.withOpacity(0.4 * pressure),
-              Colors.yellow.withOpacity(0.2 * pressure),
+              Colors.red.withValues(alpha: 0.6 * pressure),
+              Colors.orange.withValues(alpha: 0.4 * pressure),
+              Colors.yellow.withValues(alpha: 0.2 * pressure),
               Colors.transparent,
             ],
             stops: const [0.0, 0.4, 0.7, 1.0],
@@ -234,12 +384,14 @@ class RightFootWidget extends StatelessWidget {
   }
 
   Widget _buildSensor(
+    BuildContext context,
     double w,
     double h,
     double dx,
     double dy,
     double pressure,
     double temp,
+    String pointName,
   ) {
     bool isHotspot = pressure >= 0.7; // Normal -> green, Hotspot -> red
     bool isHotTemp = temp > 37.5; // Threshold for temp alert
@@ -252,36 +404,73 @@ class RightFootWidget extends StatelessWidget {
           (dx * w) -
           24, // perfectly center 48x48 bounds over exact target point
       top: (dy * h) - 24,
-      child: SizedBox(
-        width: 48,
-        height: 48,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.star,
-              color: tempColor,
-              size: 14,
-            ), // Unaffected visually by horizontal mirror
-            const SizedBox(height: 2),
-            Container(
-              width: 14,
-              height: 14,
-              decoration: BoxDecoration(
-                color: pressureColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 2,
-                    offset: Offset(0, 1), // Vertical shadow unchanged by mirror
+      child: GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Text('$footSide $pointName Sensor'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pressure: ${(pressure * 100).toStringAsFixed(1)} kPa',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Temperature: ${temp.toStringAsFixed(1)} °C',
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Close'),
+                ),
+              ],
             ),
-          ],
+          );
+        },
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Reverse the transform on the icon so it doesn't look weird if side is Left
+              Transform.scale(
+                scaleX: footSide == "Left" ? -1.0 : 1.0,
+                child: Icon(Icons.star, color: tempColor, size: 14),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                width: 14,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: pressureColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 2,
+                      offset: Offset(
+                        0,
+                        1,
+                      ), // Vertical shadow unchanged by mirror
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

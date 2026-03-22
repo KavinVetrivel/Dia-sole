@@ -86,7 +86,7 @@ class StatCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          if (subtitle != null) subtitle!,
+          ?subtitle,
         ],
       ),
     );
